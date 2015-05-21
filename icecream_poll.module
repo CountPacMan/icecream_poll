@@ -1,5 +1,5 @@
 <?php
-function sum_menu() {
+function icecream_poll_menu() {
     $items['icecream_poll'] = array(
         'title' => 'Ice Cream Poll',
         'page callback' => 'drupal_get_form',
@@ -17,20 +17,20 @@ function sum_menu() {
 }
 
 function poll_form() {
-    $flavors = array['Vanilla', 'Chocolate', 'Cherry', 'Pannacota', 'Rainbow Sherbet'];
+    $flavors = array('Vanilla' => 'Vanilla', 'Chocolate' => 'Chocolate', 'Cherry' => 'Cherry', 'Pannacota' => 'Pannacota', 'Rainbow Sherbet' => 'Rainbow Sherbet');
 
     $form['flavor'] = array(
         '#title' => 'Ice Cream Poll',
         '#type' => 'radios',
         '#default_value' => 0,
-        '#options' => $position,
+        '#options' => $flavors,
         '#description' => t("Select your favorite icecream"),
     );
     $form['state'] = array(
         '#title' => 'State',
         '#type' => 'textfield',
-        '#element_validate' +> array('element_validate_state'),
-        'description' => t("Enter your Home-State"),
+        '#element_validate' => array('element_validate_state'),
+        '#description' => t("Enter your Home-State"),
     );
     $form['submit'] = array(
         '#value' => 'Go',
@@ -102,12 +102,22 @@ function element_validate_state($element) {
         'WI', 'WISCONSIN',
         'WY', 'WYOMING',
     );
-    if (!($state == 'O')
+
+    // uppercase
+    $state = strtoupper($state);
+    // test
+    if (!in_array($state, $valid_states)) {
+        form_error($element, t(" $state is not a valid state."));
+    }
+
 }
 
-function icecream_poll_form_submit($form, &$form_state) {
-    $flavor = $form_state['values']['flavor'];
-    $state = $form_state['values']['state'];
+function poll_form_submit($form, &$form_state) {
+    $_SESSION['flavor'] = $form_state['values']['flavor'];
+    $_SESSION['state'] = strtoupper($form_state['values']['state']);
+    $form_state['redirect'] = 'poll_success';
+}
 
-
+function poll_success() {
+    return '<p>Thank You! We have you down for ' . $_SESSION['flavor'] . ' in ' . $_SESSION['state'] . '.</p>';
 }
